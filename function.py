@@ -33,7 +33,7 @@ def get_driver(url, useragents=[]):
     options.add_argument("--disable-dev-shm-usage")
     if len(useragents) != 0:
         options.add_argument(f'--user-agent={random.choice(useragents)}')
-    driver = webdriver.Chrome('../chromedriver', chrome_options=options)
+    driver = webdriver.Chrome('chromedriver', chrome_options=options)
     driver.set_window_size(1920, 1080)
     driver.get(url) 
     return driver

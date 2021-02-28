@@ -5,7 +5,7 @@ from function import *
 
 st.title('How many people in theater')
 
-@st.cache(suppress_st_warning=True)
+@st.cache(suppress_st_warning=True, show_spinner=False, allow_output_mutation=True)
 def set_data(theater_url, date):
     base_url = 'https://tjoy.jp'
     people_per_time = constant.per_5_mins
