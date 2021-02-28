@@ -1,0 +1,4 @@
+streamlit==0.76.0
+selenium
+beautifulsoup4
+matplotlib
