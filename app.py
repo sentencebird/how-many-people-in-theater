@@ -3,12 +3,11 @@ import datetime
 import constant
 from function import *
 
-st.title('How many people in theater')
+st.set_page_config(page_title='How many people in theater', layout='wide')
 
 @st.cache(suppress_st_warning=True, show_spinner=False, allow_output_mutation=True)
-def set_data(theater_url, date):
+def set_data(theater_url, date, people_per_time):
     base_url = 'https://tjoy.jp'
-    people_per_time = constant.per_5_mins
     
     with st.spinner('アクセス中...'):
         driver = get_driver(theater_url)
@@ -35,27 +34,30 @@ def set_data(theater_url, date):
             except: continue
     return people_per_time
 
-# 入力
-theater = st.selectbox('上映館',(['---'] + list(constant.theaters.keys())))
-if theater == '---': st.stop()
-theater_url = constant.theaters[theater]    
-    
-dates = date_list(6)
-date = st.selectbox('上映日', (['---'] + dates))
-if date == '---': st.stop()
+# ページ
+_left, center, _right = st.beta_columns([1, 1, 1])
+with center:
+    st.title('上映開始と終了時刻の人数')
+    # 入力
+    theater = st.selectbox('上映館',(['---'] + list(constant.theaters.keys())))
+    if theater == '---': st.stop()
+    theater_url = constant.theaters[theater]
+    a_tag = f'[{theater}]({theater_url})'
+    st.markdown(a_tag, unsafe_allow_html=True)    
 
-# スクレイピング 
-data = set_data(theater_url, date)
-    
-# グラフ表示
-with st.spinner('グラフ表示'):
-    times = list(data.keys())
-    start_time = st.selectbox('表示開始', (times), index=times.index('12:00'))
-    end_time = st.selectbox('表示終了', (times), index=times.index('15:00'))
-    start_idx, end_idx = times.index(start_time), times.index(end_time)
+    dates = date_list(6)
+    date = st.selectbox('上映日', (['---'] + dates))
+    if date == '---': st.stop()
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.tick_params(axis='x', labelrotation=45, labelsize=6)
-    ax.bar(times[start_idx:end_idx], list(data.values())[start_idx:end_idx])
-    st.write(fig)
+    # スクレイピング 
+    data = set_data(theater_url, date, constant.per_5_mins)
+    
+    # グラフ表示
+    with st.spinner('グラフ表示'):
+        times = list(data.keys())
+        fig, ax = plt.subplots(figsize=(20, 5))        
+        ax.tick_params(axis='x')
+        ax.tick_params(axis='y')
+        xlabels = [time if ':00' in time else '' for time in data.keys()]
+        ax.bar(data.keys(), list(data.values()), tick_label=xlabels)
+st.pyplot(fig)
